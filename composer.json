@@ -15,7 +15,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Daysoff\\": "src/"
+            "DaysOff\\": "src/"
         }
     },
     "autoload-dev": {
