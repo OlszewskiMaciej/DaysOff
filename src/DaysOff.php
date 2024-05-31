@@ -98,4 +98,24 @@ class DaysOff
 
         return $result;
     }
+
+    public function countHolidaysAndWeekendsBetweenDates(DateTime $fromDate, DateTime $toDate): int
+    {
+        return count($this->getHolidaysAndWeekendsBetweenDates($fromDate, $toDate));
+    }
+
+    public function countHolidaysBetweenDates(DateTime $fromDate, DateTime $toDate): int
+    {
+        return count($this->getHolidaysBetweenDates($fromDate, $toDate));
+    }
+
+    public function countWeekendsBetweenDates(DateTime $fromDate, DateTime $toDate): int
+    {
+        return count($this->getWeekendsBetweenDates($fromDate, $toDate));
+    }
+
+    public function countWorkingDaysBetweenDates(DateTime $fromDate, DateTime $toDate): int
+    {
+        return count($this->getWorkingDaysBetweenDates($fromDate, $toDate));
+    }
 }
