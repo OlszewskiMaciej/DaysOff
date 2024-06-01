@@ -99,6 +99,34 @@ class DaysOff
         return $result;
     }
 
+    public function getHolidaysAndWeekendsFromDatePlusDays(DateTime $date, int $daysToAdd): array
+    {
+        $newDate = clone $date;
+        $newDate->add(new DateInterval("P{$daysToAdd}D"));
+        return $this->getHolidaysAndWeekendsBetweenDates($date, $newDate);
+    }
+
+    public function getHolidaysFromDatePlusDays(DateTime $date, int $daysToAdd): array
+    {
+        $newDate = clone $date;
+        $newDate->add(new DateInterval("P{$daysToAdd}D"));
+        return $this->getHolidaysBetweenDates($date, $newDate);
+    }
+
+    public function getWeekendsFromDatePlusDays(DateTime $date, int $daysToAdd): array
+    {
+        $newDate = clone $date;
+        $newDate->add(new DateInterval("P{$daysToAdd}D"));
+        return $this->getWeekendsBetweenDates($date, $newDate);
+    }
+
+    public function getWorkingDaysFromDatePlusDays(DateTime $date, int $daysToAdd): array
+    {
+        $newDate = clone $date;
+        $newDate->add(new DateInterval("P{$daysToAdd}D"));
+        return $this->getWorkingDaysBetweenDates($date, $newDate);
+    }
+
     public function countHolidaysAndWeekendsBetweenDates(DateTime $fromDate, DateTime $toDate): int
     {
         return count($this->getHolidaysAndWeekendsBetweenDates($fromDate, $toDate));
@@ -117,5 +145,25 @@ class DaysOff
     public function countWorkingDaysBetweenDates(DateTime $fromDate, DateTime $toDate): int
     {
         return count($this->getWorkingDaysBetweenDates($fromDate, $toDate));
+    }
+
+    public function countHolidaysAndWeekendsFromDatePlusDays(DateTime $date, int $daysToAdd): int
+    {
+        return count($this->getHolidaysAndWeekendsFromDatePlusDays($date, $daysToAdd));
+    }
+
+    public function countHolidaysFromDatePlusDays(DateTime $date, int $daysToAdd): int
+    {
+        return count($this->getHolidaysFromDatePlusDays($date, $daysToAdd));
+    }
+
+    public function countWeekendsFromDatePlusDays(DateTime $date, int $daysToAdd): int
+    {
+        return count($this->getWeekendsFromDatePlusDays($date, $daysToAdd));
+    }
+
+    public function countWorkingDaysFromDatePlusDays(DateTime $date, int $daysToAdd): int
+    {
+        return count($this->getWorkingDaysFromDatePlusDays($date, $daysToAdd));
     }
 }
