@@ -15,6 +15,33 @@ class DaysOff
         $this->holidayProvider = $holidayProvider;
     }
 
+    public function isHolidayOrWeekend(DateTime $date): bool
+    {
+        return $this->isHoliday($date) || $this->isWeekend($date);
+    }
+
+    public function isHoliday(DateTime $date): bool
+    {
+        $formattedDate = $date->format('m-d');
+        $year = (int)$date->format('Y');
+        $formattedFullDate = $date->format('Y-m-d');
+
+        $fixedHolidays = $this->holidayProvider->getFixedHolidays();
+        $movingHolidays = $this->holidayProvider->getMovingHolidays($year);
+
+        return isset($fixedHolidays[$formattedDate]) || isset($movingHolidays[$formattedFullDate]);
+    }
+
+    public function isWeekend(DateTime $date): bool
+    {
+        return $date->format('N') >= 6;
+    }
+
+    public function isWorkingDay(DateTime $date): bool
+    {
+        return !$this->isHolidayOrWeekend($date);
+    }
+
     public function getHolidaysAndWeekendsBetweenDates(DateTime $fromDate, DateTime $toDate): array
     {
         $year = (int)$fromDate->format('Y');
