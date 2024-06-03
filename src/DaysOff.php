@@ -22,14 +22,14 @@ class DaysOff
 
     public function isHoliday(DateTime $date): bool
     {
-        $formattedDate = $date->format('m-d');
         $year = (int)$date->format('Y');
-        $formattedFullDate = $date->format('Y-m-d');
-
-        $fixedHolidays = $this->holidayProvider->getFixedHolidays();
         $movingHolidays = $this->holidayProvider->getMovingHolidays($year);
+        $fixedHolidays = $this->holidayProvider->getFixedHolidays();
 
-        return isset($fixedHolidays[$formattedDate]) || isset($movingHolidays[$formattedFullDate]);
+        $formattedFullDate = $date->format('Y-m-d');
+        $formattedDate = $date->format('m-d');
+
+        return isset($movingHolidays[$formattedFullDate]) || isset($fixedHolidays[$formattedDate]);
     }
 
     public function isWeekend(DateTime $date): bool
@@ -40,6 +40,26 @@ class DaysOff
     public function isWorkingDay(DateTime $date): bool
     {
         return !$this->isHolidayOrWeekend($date);
+    }
+
+    public function getHolidayName(DateTime $date): ?string
+    {
+        $year = (int)$date->format('Y');
+        $movingHolidays = $this->holidayProvider->getMovingHolidays($year);
+        $fixedHolidays = $this->holidayProvider->getFixedHolidays();
+
+        $formattedFullDate = $date->format('Y-m-d');
+        $formattedDate = $date->format('m-d');
+
+        if (isset($movingHolidays[$formattedFullDate])) {
+            return $movingHolidays[$formattedFullDate];
+        }
+
+        if (isset($fixedHolidays[$formattedDate])) {
+            return $fixedHolidays[$formattedDate];
+        }
+
+        return null;
     }
 
     public function getHolidaysAndWeekendsBetweenDates(DateTime $fromDate, DateTime $toDate): array
