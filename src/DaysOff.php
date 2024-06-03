@@ -62,6 +62,38 @@ class DaysOff
         return null;
     }
 
+    public function getCalendarDaysFromDatePlusWorkingDays(DateTime $date, int $daysToAdd): int
+    {
+        $date = clone $date;
+        $calendarDays = 0;
+        $workingDaysAdded = 0;
+
+        while ($workingDaysAdded < $daysToAdd) {
+            $calendarDays++;
+            $date->add(new DateInterval('P1D'));
+            if (!$this->isHolidayOrWeekend($date)) {
+                $workingDaysAdded++;
+            }
+        }
+
+        return $calendarDays;
+    }
+
+    public function getDateFromDatePlusWorkingDays(DateTime $date, int $daysToAdd): DateTime
+    {
+        $date = clone $date;
+        $workingDaysAdded = 0;
+
+        while ($workingDaysAdded < $daysToAdd) {
+            $date->add(new DateInterval('P1D'));
+            if (!$this->isHolidayOrWeekend($date)) {
+                $workingDaysAdded++;
+            }
+        }
+
+        return $date;
+    }
+
     public function getHolidaysAndWeekendsBetweenDates(DateTime $fromDate, DateTime $toDate): array
     {
         $year = (int)$fromDate->format('Y');
