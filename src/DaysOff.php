@@ -9,10 +9,24 @@ use DaysOff\Interfaces\HolidayInterface;
 class DaysOff
 {
     private HolidayInterface $holidayProvider;
+    private array $additionalHolidays = [];
+    private array $removedHolidays = [];
 
     public function __construct(HolidayInterface $holidayProvider)
     {
         $this->holidayProvider = $holidayProvider;
+    }
+
+    public function addHoliday(DateTime $date, string $name, bool $fixed = false): void
+    {
+        $key = $fixed ? $date->format('m-d') : $date->format('Y-m-d');
+        $this->additionalHolidays[$key] = $name;
+    }
+
+    public function removeHoliday(DateTime $date, bool $fixed = false): void
+    {
+        $key = $fixed ? $date->format('m-d') : $date->format('Y-m-d');
+        $this->removedHolidays[$key] = true;
     }
 
     public function isHolidayOrWeekend(DateTime $date): bool
@@ -23,13 +37,21 @@ class DaysOff
     public function isHoliday(DateTime $date): bool
     {
         $year = (int)$date->format('Y');
-        $movingHolidays = $this->holidayProvider->getMovingHolidays($year);
-        $fixedHolidays = $this->holidayProvider->getFixedHolidays();
-
-        $formattedFullDate = $date->format('Y-m-d');
         $formattedDate = $date->format('m-d');
+        $formattedFullDate = $date->format('Y-m-d');
 
-        return isset($movingHolidays[$formattedFullDate]) || isset($fixedHolidays[$formattedDate]);
+        if (isset($this->removedHolidays[$formattedDate]) || isset($this->removedHolidays[$formattedFullDate])) {
+            return false;
+        }
+
+        if (isset($this->additionalHolidays[$formattedDate]) || isset($this->additionalHolidays[$formattedFullDate])) {
+            return true;
+        }
+
+        $fixedHolidays = $this->holidayProvider->getFixedHolidays();
+        $movingHolidays = $this->holidayProvider->getMovingHolidays($year);
+
+        return isset($fixedHolidays[$formattedDate]) || isset($movingHolidays[$formattedFullDate]);
     }
 
     public function isWeekend(DateTime $date): bool
@@ -44,12 +66,24 @@ class DaysOff
 
     public function getHolidayName(DateTime $date): ?string
     {
+        $formattedDate = $date->format('m-d');
+        $formattedFullDate = $date->format('Y-m-d');
+
+        if (isset($this->removedHolidays[$formattedDate]) || isset($this->removedHolidays[$formattedFullDate])) {
+            return null;
+        }
+
+        if (isset($this->additionalHolidays[$formattedDate])) {
+            return $this->additionalHolidays[$formattedDate];
+        }
+
+        if (isset($this->additionalHolidays[$formattedFullDate])) {
+            return $this->additionalHolidays[$formattedFullDate];
+        }
+
         $year = (int)$date->format('Y');
         $movingHolidays = $this->holidayProvider->getMovingHolidays($year);
         $fixedHolidays = $this->holidayProvider->getFixedHolidays();
-
-        $formattedFullDate = $date->format('Y-m-d');
-        $formattedDate = $date->format('m-d');
 
         if (isset($movingHolidays[$formattedFullDate])) {
             return $movingHolidays[$formattedFullDate];
@@ -104,16 +138,27 @@ class DaysOff
         $date = clone $fromDate;
         while ($date <= $toDate) {
             $formattedFullDate = $date->format('Y-m-d');
+            $formattedDate = $date->format('m-d');
+
             if ($date->format('N') >= 6) {
                 $result[$formattedFullDate] = $date->format('l');
             }
-            if (isset($movingHolidays[$formattedFullDate])) {
+
+            if (isset($this->removedHolidays[$formattedDate]) || isset($this->removedHolidays[$formattedFullDate])) {
+                $date->add(new DateInterval('P1D'));
+                continue;
+            }
+
+            if (isset($this->additionalHolidays[$formattedFullDate])) {
+                $result[$formattedFullDate] = $this->additionalHolidays[$formattedFullDate];
+            } elseif (isset($this->additionalHolidays[$formattedDate])) {
+                $result[$formattedFullDate] = $this->additionalHolidays[$formattedDate];
+            } elseif (isset($movingHolidays[$formattedFullDate])) {
                 $result[$formattedFullDate] = $movingHolidays[$formattedFullDate];
+            } elseif (isset($fixedHolidays[$formattedDate])) {
+                $result[$formattedFullDate] = $fixedHolidays[$formattedDate];
             }
-            $formattedDate = $date->format('m-d');
-            if (isset($fixedHolidays[$formattedDate])) {
-                $result[$date->format('Y-m-d')] = $fixedHolidays[$formattedDate];
-            }
+
             $date->add(new DateInterval('P1D'));
         }
         ksort($result);
@@ -131,13 +176,23 @@ class DaysOff
         $date = clone $fromDate;
         while ($date <= $toDate) {
             $formattedFullDate = $date->format('Y-m-d');
-            if (isset($movingHolidays[$formattedFullDate])) {
-                $result[$formattedFullDate] = $movingHolidays[$formattedFullDate];
-            }
             $formattedDate = $date->format('m-d');
-            if (isset($fixedHolidays[$formattedDate])) {
-                $result[$date->format('Y-m-d')] = $fixedHolidays[$formattedDate];
+
+            if (isset($this->removedHolidays[$formattedDate]) || isset($this->removedHolidays[$formattedFullDate])) {
+                $date->add(new DateInterval('P1D'));
+                continue;
             }
+
+            if (isset($this->additionalHolidays[$formattedFullDate])) {
+                $result[$formattedFullDate] = $this->additionalHolidays[$formattedFullDate];
+            } elseif (isset($this->additionalHolidays[$formattedDate])) {
+                $result[$formattedFullDate] = $this->additionalHolidays[$formattedDate];
+            } elseif (isset($movingHolidays[$formattedFullDate])) {
+                $result[$formattedFullDate] = $movingHolidays[$formattedFullDate];
+            } elseif (isset($fixedHolidays[$formattedDate])) {
+                $result[$formattedFullDate] = $fixedHolidays[$formattedDate];
+            }
+
             $date->add(new DateInterval('P1D'));
         }
         ksort($result);
