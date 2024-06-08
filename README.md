@@ -17,7 +17,6 @@ Here's an example of how to use it:
 ```php
 use DaysOff\DaysOff;
 use DaysOff\Providers\PolishHolidayProvider;
-use DateTime;
 
 // Initialize the holiday provider
 $holidayProvider = new PolishHolidayProvider();
@@ -25,21 +24,49 @@ $holidayProvider = new PolishHolidayProvider();
 // Initialize the DaysOff instance
 $daysOff = new DaysOff($holidayProvider);
 
+$fromDate = new DateTime('2024-01-01');
+$toDate = new DateTime('2024-12-31');
+$daysToAdd = 10;
+
+// Add and remove holidays
+$daysOff->addHoliday(new DateTime('2025-05-02'), 'Custom Holiday');
+$daysOff->removeHoliday(new DateTime('2025-01-06'));
+
+// Calculate calendar days from date + X working days
+echo '<b>getCalendarDaysFromDatePlusWorkingDays</b>: ';
+print_r($daysOff->getCalendarDaysFromDatePlusWorkingDays($fromDate, $daysToAdd));
+
+// Calculate date from date + X working days
+echo '<b>getDateFromDatePlusWorkingDays</b>: ';
+print_r($daysOff->getDateFromDatePlusWorkingDays($fromDate, $daysToAdd));
+
+// Get holiday name
+echo '<b>getHolidayName</b>: ';
+print_r($daysOff->getHolidayName($fromDate));
+
 // Check if a date is a holiday
-$date = new DateTime('2023-12-25'); // Christmas
-$isHoliday = $daysOff->isHoliday($date); // true
+echo '<b>isHoliday</b>: ';
+var_dump($daysOff->isHoliday($fromDate));
 
-// Check if a date is a weekend
-$date = new DateTime('2023-12-24'); // Sunday
-$isWeekend = $daysOff->isWeekend($date); // true
+// Count holidays between dates
+echo '<b>countHolidaysBetweenDates</b>: ';
+var_dump($daysOff->countHolidaysBetweenDates($fromDate, $toDate));
 
-// Check if a date is a working day
-$date = new DateTime('2023-12-26'); // Boxing Day
-$isWorkingDay = $daysOff->isWorkingDay($date); // false
+// Get holidays between dates
+echo '<b>getHolidaysBetweenDates</b>: ';
+print_r($daysOff->getHolidaysBetweenDates($fromDate, $toDate));
 
-// Calculate a date based on working days
-$date = new DateTime('2023-12-24'); // Christmas Eve
-$deliveryDate = $daysOff->getDateFromDatePlusWorkingDays($date, 2); // 2023-12-28
+// Count holidays and weekends from date + X days
+echo '<b>countHolidaysAndWeekendsFromDatePlusDays</b>: ';
+var_dump($daysOff->countHolidaysAndWeekendsFromDatePlusDays($fromDate, $daysToAdd));
+
+// Get holidays and weekends from date + X days
+echo '<b>getHolidaysAndWeekendsFromDatePlusDays</b>: ';
+print_r($daysOff->getHolidaysAndWeekendsFromDatePlusDays($fromDate, $daysToAdd));
+
+// Count working days from date + X days
+echo '<b>countWorkingDaysFromDatePlusDays</b>: ';
+var_dump($daysOff->countWorkingDaysFromDatePlusDays($fromDate, $daysToAdd));
 ```
 
 ## Use Cases
@@ -72,29 +99,56 @@ Oto przykład użycia:
 ```php
 use DaysOff\DaysOff;
 use DaysOff\Providers\PolishHolidayProvider;
-use DateTime;
 
 // Inicjalizacja "dostawcy" świąt
 $holidayProvider = new PolishHolidayProvider();
 
-// Inicjalizacja DaysOff
+// Inicjalizacja biblioteki
 $daysOff = new DaysOff($holidayProvider);
 
-// Sprawdzenie, czy data jest świętem
-$date = new DateTime('2023-12-25'); // Boże Narodzenie
-$isHoliday = $daysOff->isHoliday($date); // true
+$fromDate = new DateTime('2024-01-01');
+$toDate = new DateTime('2024-12-31');
+$daysToAdd = 10;
 
-// Sprawdzenie, czy data jest weekendem
-$date = new DateTime('2023-12-24'); // Niedziela
-$isWeekend = $daysOff->isWeekend($date); // true
+// Dodaj, usuń święto
+$daysOff->addHoliday(new DateTime('2025-05-02'), 'Custom Holiday');
+$daysOff->removeHoliday(new DateTime('2025-01-06'));
 
-// Sprawdzenie, czy data jest dniem roboczym
-$date = new DateTime('2023-12-26'); // Drugi dzień Bożego Narodzenia
-$isWorkingDay = $daysOff->isWorkingDay($date); // false
+// Oblicz liczbę dni kalendarzowych od daty + X dni roboczych
+echo '<b>getCalendarDaysFromDatePlusWorkingDays</b>: ';
+print_r($daysOff->getCalendarDaysFromDatePlusWorkingDays($fromDate, $daysToAdd));
 
-// Obliczenie daty na podstawie dni roboczych
-$date = new DateTime('2023-12-24'); // Wigilia
-$deliveryDate = $daysOff->getDateFromDatePlusWorkingDays($date, 2); // 2023-12-28
+// Oblicz datę od daty + X dni roboczych
+echo '<b>getDateFromDatePlusWorkingDays</b>: ';
+print_r($daysOff->getDateFromDatePlusWorkingDays($fromDate, $daysToAdd));
+
+// Zwróc nazwę święta
+echo '<b>getHolidayName</b>: ';
+print_r($daysOff->getHolidayName($fromDate));
+
+// Sprawdź czy podana data wypada w święto
+echo '<b>isHoliday</b>: ';
+var_dump($daysOff->isHoliday($fromDate));
+
+// Policz święta pomiędzy podanymi datami
+echo '<b>countHolidaysBetweenDates</b>: ';
+var_dump($daysOff->countHolidaysBetweenDates($fromDate, $toDate));
+
+// Zwróć święta pomiędzy podanymi datami
+echo '<b>getHolidaysBetweenDates</b>: ';
+print_r($daysOff->getHolidaysBetweenDates($fromDate, $toDate));
+
+// Policz święta i weekendy od daty + X dni
+echo '<b>countHolidaysAndWeekendsFromDatePlusDays</b>: ';
+var_dump($daysOff->countHolidaysAndWeekendsFromDatePlusDays($fromDate, $daysToAdd));
+
+// Zwróc święta i weekendy od daty + X dni
+echo '<b>getHolidaysAndWeekendsFromDatePlusDays</b>: ';
+print_r($daysOff->getHolidaysAndWeekendsFromDatePlusDays($fromDate, $daysToAdd));
+
+// Policz dni robocze od daty + X dni
+echo '<b>countWorkingDaysFromDatePlusDays</b>: ';
+var_dump($daysOff->countWorkingDaysFromDatePlusDays($fromDate, $daysToAdd));
 ```
 
 ## Przykłady użycia
